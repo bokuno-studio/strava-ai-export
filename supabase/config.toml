@@ -1,0 +1,4 @@
+project_id = "fzsnpwtzatbowgyrwvrv"
+
+[api]
+schemas = ["public", "graphql_public", "storage", "strava_ai_export"]
