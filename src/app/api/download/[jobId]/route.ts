@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isResponse, requireAuth } from "@/lib/http";
-import { downloadExportZip, getJobForAthlete, isDoneAndDownloadable } from "@/lib/store";
+import { createExportSignedUrl, getJobForAthlete, isDoneAndDownloadable } from "@/lib/store";
 
 export async function GET(_request: Request, context: { params: Promise<{ jobId: string }> }) {
   const auth = await requireAuth();
@@ -12,11 +12,7 @@ export async function GET(_request: Request, context: { params: Promise<{ jobId:
     return NextResponse.json({ error: "Download expired or not ready" }, { status: 410 });
   }
 
-  const blob = await downloadExportZip(job.download_path);
-  return new NextResponse(blob, {
-    headers: {
-      "content-type": "application/zip",
-      "content-disposition": `attachment; filename="strava-ai-export-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}.zip"`,
-    },
-  });
+  const filename = `strava-ai-export-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}.zip`;
+  const signedUrl = await createExportSignedUrl(job.download_path, filename);
+  return NextResponse.redirect(signedUrl, 302);
 }

@@ -337,7 +337,7 @@ function JobRow({ job }: { job: Job }) {
       {job.status === "queued" ? (
         <p className="mt-2 flex items-center gap-2 text-sm text-[var(--muted)]">
           <Bell aria-hidden="true" size={16} />
-          Strava is busy, your job is queued.
+          {job.rate_limited_until ? "Strava is busy, your job is queued." : "Queued for sync."}
         </p>
       ) : null}
       {job.status === "failed" && job.error ? <p className="mt-2 text-sm text-[#b42318]">{job.error}</p> : null}

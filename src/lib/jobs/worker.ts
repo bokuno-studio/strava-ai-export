@@ -65,6 +65,7 @@ export async function processJob(jobId: string): Promise<Job> {
     });
 
     const seenGearIds = new Set<string>();
+    // Keep Strava calls serial to respect the app-level rate limit.
     for (const [index, summary] of activities.entries()) {
       const activityId = numberFrom(summary.id);
       if (!activityId) continue;

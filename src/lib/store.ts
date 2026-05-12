@@ -334,10 +334,10 @@ export async function uploadExportZip(athleteId: number, jobId: string, zip: Buf
   return path;
 }
 
-export async function downloadExportZip(path: string): Promise<Blob> {
-  const { data, error } = await storage().download(path);
+export async function createExportSignedUrl(path: string, downloadFilename: string): Promise<string> {
+  const { data, error } = await storage().createSignedUrl(path, 60, { download: downloadFilename });
   if (error) throw error;
-  return data;
+  return data.signedUrl;
 }
 
 async function downloadStream(path: string): Promise<JsonRecord> {
@@ -397,12 +397,25 @@ export async function deleteAthleteCascade(athleteId: number): Promise<void> {
 }
 
 async function removeStoragePrefix(prefix: string): Promise<void> {
-  const listed = await storage().list(prefix, { limit: 1000 });
-  if (listed.error) throw listed.error;
-  const files = listed.data.map((item) => `${prefix}/${item.name}`);
-  if (files.length === 0) return;
-  const removed = await storage().remove(files);
-  if (removed.error) throw removed.error;
+  const files: string[] = [];
+  const pageSize = 1000;
+
+  for (let offset = 0; ; offset += pageSize) {
+    const listed = await storage().list(prefix, {
+      limit: pageSize,
+      offset,
+      sortBy: { column: "name", order: "asc" },
+    });
+    if (listed.error) throw listed.error;
+
+    files.push(...listed.data.map((item) => `${prefix}/${item.name}`));
+    if (listed.data.length < pageSize) break;
+  }
+
+  for (let index = 0; index < files.length; index += pageSize) {
+    const removed = await storage().remove(files.slice(index, index + pageSize));
+    if (removed.error) throw removed.error;
+  }
 }
 
 export async function markAthleteSynced(athleteId: number): Promise<void> {

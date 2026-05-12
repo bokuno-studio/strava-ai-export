@@ -10,11 +10,15 @@ const activityFields = [
   "type",
   "started_at",
   "distance_m",
+  "total_elevation_gain_m",
   "moving_time_s",
   "elapsed_time_s",
+  "average_speed_mps",
+  "max_speed_mps",
   "avg_heartrate",
   "max_heartrate",
   "average_watts",
+  "kilojoules",
   "gear_id",
 ];
 

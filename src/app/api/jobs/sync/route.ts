@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
   const kind = body.kind as JobKind;
   const days = kind === "past_n_days" ? Math.max(1, Math.min(3650, Number(body.days) || 7)) : null;
   const job = await createJob(auth.athleteId, kind, days);
+
+  // Best-effort immediate start; /api/worker/run is the retryable cron entrypoint.
   after(async () => {
     await processJob(job.id);
   });
