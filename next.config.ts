@@ -24,6 +24,10 @@ const securityHeaders = [
     value: "strict-origin-when-cross-origin",
   },
   {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  {
     key: "X-Content-Type-Options",
     value: "nosniff",
   },
@@ -38,6 +42,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   async headers() {
     return [
       {

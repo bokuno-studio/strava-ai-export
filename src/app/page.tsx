@@ -98,8 +98,11 @@ export default function Home() {
           <div className="border-b border-[var(--line)] px-5 py-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-[var(--muted)]">Current job</p>
+                <p className="text-sm font-semibold text-[var(--muted)]">Sample preview</p>
                 <h2 className="mt-1 text-xl font-semibold">Today export</h2>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  Sign in to see your own export.
+                </p>
               </div>
               <span className="inline-flex items-center gap-2 rounded-full bg-[var(--ok-bg)] px-3 py-1 text-sm font-semibold text-[var(--ok)]">
                 <CheckCircle2 aria-hidden="true" size={16} />
