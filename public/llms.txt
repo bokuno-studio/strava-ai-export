@@ -1,0 +1,16 @@
+# Strava AI Export
+
+Strava AI Export helps users turn Strava activity data into AI-ready CSV exports.
+
+## Product
+
+- User-facing language: English
+- Primary flow: connect Strava, choose an export range, download a CSV ZIP bundle
+- Output target: ChatGPT, Claude, and Gemini
+
+## Important routes
+
+- `/`: product entry point
+- `/api/auth/start`: planned Strava OAuth start route
+- `/sitemap.xml`: sitemap
+- `/manifest.json`: web app manifest
