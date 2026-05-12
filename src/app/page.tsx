@@ -9,6 +9,12 @@ import {
   LockKeyhole,
   Smartphone,
 } from "lucide-react";
+import Dashboard from "@/app/dashboard";
+import { optionalEnv } from "@/lib/env";
+import { currentAthleteId } from "@/lib/session";
+import { getAthlete, listJobsForAthlete } from "@/lib/store";
+
+export const dynamic = "force-dynamic";
 
 const steps = [
   {
@@ -37,7 +43,47 @@ const exportFiles = [
   "prompt_template.txt",
 ];
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const athleteId = await currentAthleteId(optionalEnv("SESSION_SECRET"));
+
+  if (athleteId) {
+    let authError: string | null = null;
+    let athlete = null;
+    let jobs = null;
+    try {
+      athlete = await getAthlete(athleteId);
+      jobs = athlete ? await listJobsForAthlete(athleteId) : null;
+    } catch (error) {
+      authError = error instanceof Error ? error.message : "Configuration error";
+    }
+
+    if (athlete && jobs) return <Dashboard athlete={athlete} initialJobs={jobs} />;
+    if (authError) return <Landing authError={authError} />;
+  }
+
+  return (
+    <Landing
+      authError={typeof params.auth_error === "string" ? params.auth_error : undefined}
+      disconnected={params.disconnected === "1"}
+      cancelled={params.auth === "cancelled"}
+    />
+  );
+}
+
+function Landing({
+  authError,
+  disconnected,
+  cancelled,
+}: {
+  authError?: string;
+  disconnected?: boolean;
+  cancelled?: boolean;
+}) {
   return (
     <main className="min-h-screen bg-[var(--page)] text-[var(--ink)]">
       <section className="mx-auto grid min-h-screen w-full max-w-6xl items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[1fr_0.92fr] lg:px-10">
@@ -46,6 +92,10 @@ export default function Home() {
             <Cloud aria-hidden="true" size={16} />
             Strava to AI-ready CSV
           </p>
+
+          {authError ? <Notice tone="error" text={`Connection failed: ${authError}`} /> : null}
+          {cancelled ? <Notice tone="warn" text="Connection cancelled. You can retry when ready." /> : null}
+          {disconnected ? <Notice tone="ok" text="Your Strava connection and stored data were deleted." /> : null}
 
           <h1 className="text-5xl font-semibold leading-[1.02] tracking-normal text-balance sm:text-6xl">
             Strava AI Export
@@ -144,6 +194,16 @@ export default function Home() {
       </section>
     </main>
   );
+}
+
+function Notice({ tone, text }: { tone: "ok" | "warn" | "error"; text: string }) {
+  const className =
+    tone === "ok"
+      ? "border-[var(--ok)] bg-[var(--ok-bg)] text-[var(--ok)]"
+      : tone === "warn"
+        ? "border-[#b87b00] bg-[#fff7db] text-[#6f4c00]"
+        : "border-[#b42318] bg-[#fff1f0] text-[#8f1f17]";
+  return <p className={`mb-5 rounded-md border px-4 py-3 text-sm font-medium ${className}`}>{text}</p>;
 }
 
 function Feature({
